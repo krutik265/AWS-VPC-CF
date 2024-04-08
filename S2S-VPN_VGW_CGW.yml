@@ -1,0 +1,59 @@
+Description: This CloudFormation template creates a Site-to-Site VPN configuration in AWS. It provisions the necessary resources for establishing a VPN connection between a customer's on-premises network (Customer Gateway) and an AWS Virtual Private Cloud (VPC) (Virtual Private Gateway). 
+#Do not forget to enable route propagation in route table & define static routes in VPN connection.
+
+Parameters:
+  CustomerGatewayIpAddress:
+    Description: IP address of the customer gateway
+    Type: String
+  CustomerGatewayName:
+    Description: Name for the Customer Gateway
+    Type: String
+  CustomerGatewayBgpAsn:
+    Description: BGP ASN of the customer gateway
+    Type: String
+    Default: 65000
+  VirtualPrivateGatewayName:
+    Description: Name for the Virtual Private Gateway
+    Type: String
+  VpcId:
+    Description: ID of the VPC where the VPN will be attached
+    Type: AWS::EC2::VPC::Id
+  VPNConnectionName:
+    Description: Name for the VPN Connection
+    Type: String 
+
+Resources:
+  CustomerGateway:
+    Type: AWS::EC2::CustomerGateway
+    Properties:
+      BgpAsn: !Ref CustomerGatewayBgpAsn
+      IpAddress: !Ref CustomerGatewayIpAddress
+      Type: ipsec.1
+      Tags:
+        - Key: Name
+          Value: !Ref CustomerGatewayName
+
+  VirtualPrivateGateway:
+    Type: AWS::EC2::VPNGateway
+    Properties:
+      Type: ipsec.1
+      Tags:
+        - Key: Name
+          Value: !Ref VirtualPrivateGatewayName
+
+  VPCGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VpcId
+      VpnGatewayId: !Ref VirtualPrivateGateway
+
+  VPNConnection:
+    Type: AWS::EC2::VPNConnection
+    Properties:
+      Type: ipsec.1
+      CustomerGatewayId: !Ref CustomerGateway
+      VpnGatewayId: !Ref VirtualPrivateGateway
+      StaticRoutesOnly: true
+      Tags:
+        - Key: Name
+          Value: !Ref VPNConnectionName
