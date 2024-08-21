@@ -21,7 +21,7 @@ Parameters:
     Default: 10.0.2.0/24
 
   NatSubnetCIDR:
-    Description: Please enter the IP range (CIDR notation) for the private subnet in the first Availability Zone
+    Description: Please enter the IP range (CIDR notation) for the nat subnet in the first Availability Zone
     Type: String
     Default: 10.0.0.0/24
 
